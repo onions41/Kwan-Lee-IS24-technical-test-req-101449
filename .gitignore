@@ -3,3 +3,10 @@
 
 # No need to track editor settings
 .vscode
+
+# Used during development
+python-api/notebook
+python-api/tests
+
+# Misc
+**/__pycache__
