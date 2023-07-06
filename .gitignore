@@ -7,6 +7,7 @@
 # Used during development
 python-api/notebook
 python-api/tests
+.env.development
 
 # Misc
 **/__pycache__
