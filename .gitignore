@@ -1,2 +1,5 @@
 # Used for specifying local environment name in pyenv
 .python-version
+
+# No need to track editor settings
+.vscode
