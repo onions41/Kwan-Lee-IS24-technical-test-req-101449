@@ -2,36 +2,82 @@
 import os
 
 # Internal modules
+# from data_models import Product
+import data_access
 
 # External modules
-from dotenv import load_dotenv
-import mysql.connector as database
+from flask import Flask, jsonify, make_response, request
 
-# from flask import Flask
+app = Flask(__name__)
 
 
-def main():
-    if load_dotenv(".env.development"):
-        connection = database.connect(
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-            database=os.getenv("DATABASE_NAME"),
-        )
+# Get all products
+@app.route("/products", methods=["GET"])
+def get_products():
+    products = data_access.get_products()
 
-    cursor = connection.cursor()
+    # Serializes products, which is a list of Product instances, into a JSON string
+    products_json = jsonify(list(map(lambda product: product.__dict__, products)))
 
-    query = """SELECT * FROM products"""
+    response = make_response(products_json, 200)
 
-    cursor.execute(query)
+    # Set the content type header
+    response.headers["Content-Type"] = "application/json"
 
-    for row in cursor:
-        print(row)
+    # Return JSON response
+    return response
+
+
+# Add a product
+@app.route("/products", methods=["POST"])
+def add_product():
+    added_product = data_access.add_product(request.get_json())
+    added_product_json = jsonify(added_product.__dict__)
+
+    response = make_response(added_product_json, 200)
+    response.headers["Content-Type"] = "application/json"
+
+    return response
+
+
+# Update a product
+@app.route("/products/<id>", methods=["PUT"])
+def add_product():
+    update_product = data_access.update_product(request.get_json())
+    updated_product_json = jsonify(updated_product.__dict__)
+
+    response = make_response(updated_product_json, 200)
+    response.headers["Content-Type"] = "application/json"
+
+    return response
+
+
+# Get a product
+@app.route("/products/<id>", methods=["GET"])
+def get_product(id):
+    product = data_access.get_product(id)
+    product_json = jsonify(product.__dict__)
+
+    response = make_response(product_json, 200)
+    response.headers["Content-Type"] = "application/json"
+
+    return response
+
+
+# Delete a product
+@app.route("/products/<id>", methods=["DELETE"])
+def delete_product(id):
+    data_access.delete_product(id)
+
+    response = make_response("deleted", 200)
+    # Set the content type header
+    response.headers["Content-Type"] = "text/plain"
+
+    return response
 
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
 
 
 # *****Scratch*****
