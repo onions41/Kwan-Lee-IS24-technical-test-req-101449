@@ -1,0 +1,19 @@
+services:
+  db:
+    image: mariadb:10
+    restart: unless-stopped
+    environment:
+      # MARIADB_ROOT_PASSWORD is sensitive data and would normally be obfuscated
+      # using Docker's secret management techniques. I left it visible here, however,
+      # in the interest of convenience for the evaluator of this developer technical test.
+      MARIADB_ROOT_PASSWORD: password123
+      # Creates a database called bc_store the first time this container is started
+      MARIADB_DATABASE: bc_store
+    # Contains the SQL statements that initializes and seeds the bc_store database
+    volumes:
+      # Seeds the database
+      - ./dbseed:/docker-entrypoint-initdb.d
+      # Persists the database data in the event container is stopped
+      - ./dbfiles:/var/lib/mysql
+
+
