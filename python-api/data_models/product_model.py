@@ -1,7 +1,7 @@
 import json
 
 
-class Product:
+class ProductModel:
     # The properties of the Product model
     properties = ("pk", "id", "name", "description", "colour", "size")
 

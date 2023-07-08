@@ -1,1 +1,1 @@
-from .product import Product
+from .product_model import ProductModel
