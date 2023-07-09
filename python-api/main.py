@@ -1,162 +1,128 @@
-# Built-in modules
-import os
+# External imports
+from flask import Flask, jsonify, make_response, request
+from flask_cors import CORS
+from mysql.connector.errors import IntegrityError
 
-# Internal modules
-# from data_models import Product
+# Internal imports
 import data_access
 
-# External modules
-from flask import Flask, jsonify, make_response, request
 
+# Flask is a Python library for building simple APIs
 app = Flask(__name__)
+# Enables cross-origin resource sharing so requests from the frontend are processed
+# CORS should be configured more tightly before deploying on the web
+CORS(app)
+
+
+# Defining endpoints
 
 
 # Get all products
 @app.route("/products", methods=["GET"])
 def get_products():
-    products = data_access.get_products()
+    try:
+        # Retrieves a list of product objects
+        products = data_access.get_products()
+        # Serializes the list of products into a JSON string
+        products_json = jsonify(list(map(lambda product: vars(product), products)))
 
-    # Serializes products, which is a list of Product instances, into a JSON string
-    products_json = jsonify(list(map(lambda product: product.__dict__, products)))
+    # Internal server error, responds with status code and error message
+    except Exception as e:
+        return make_response(f"{type(e)} {e.__str__()}", 500)
 
-    response = make_response(products_json, 200)
-
-    # Set the content type header
-    response.headers["Content-Type"] = "application/json"
-
-    # Return JSON response
-    return response
+    # Products retrieved successfully, respond with results and code 200
+    else:
+        response = make_response(products_json, 200)
+        response.headers["Content-Type"] = "application/json"
+        return response
 
 
 # Add a product
 @app.route("/products", methods=["POST"])
 def add_product():
-    added_product = data_access.add_product(request.get_json())
-    added_product_json = jsonify(added_product.__dict__)
+    try:
+        # Adds a product and returns the added product
+        added_product = data_access.add_product(request.get_json())
+        # Serializes the product into a JSON string
+        added_product_json = jsonify(vars(added_product))
 
-    response = make_response(added_product_json, 200)
-    response.headers["Content-Type"] = "application/json"
+    # User error, missing fields
+    except (KeyError) as e:
+        return make_response("Input is missing fields", 422)
+    # User error, incorrect data type
+    except (ValueError) as e:
+        return make_response("Incorrect data type in input", 422)
+    # User error, product with same ID or name exists
+    except (IntegrityError) as e:
+        return make_response("Duplicate product ID or Name", 422)
+    # Internal server error, responds with status code and error message
+    except Exception as e:
+        return make_response(f"{type(e)} {e.__str__()}", 500)
 
-    return response
-
-
-# Update a product
-@app.route("/products/<id>", methods=["PUT"])
-def add_product():
-    update_product = data_access.update_product(request.get_json())
-    updated_product_json = jsonify(updated_product.__dict__)
-
-    response = make_response(updated_product_json, 200)
-    response.headers["Content-Type"] = "application/json"
-
-    return response
+    # Products added successfully, respond with added product and code 200
+    else:
+        response = make_response(added_product_json, 200)
+        response.headers["Content-Type"] = "application/json"
+        return response
 
 
 # Get a product
 @app.route("/products/<id>", methods=["GET"])
 def get_product(id):
-    product = data_access.get_product(id)
-    product_json = jsonify(product.__dict__)
+    try:
+        product = data_access.get_product(id)
+        product_json = jsonify(vars(product))
 
-    response = make_response(product_json, 200)
-    response.headers["Content-Type"] = "application/json"
+    except StopIteration:
+        return make_response("Could not a find product with that ID", 422)
 
-    return response
+    except Exception as e:
+        return make_response(f"{type(e)} {e.__str__()}", 500)
+
+    else:
+        response = make_response(product_json, 200)
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+
+# Update a product
+@app.route("/products/<id>", methods=["PUT"])
+def update_product():  # No need to use ID in URL parameter. ID is in JSON body
+    try:
+        updated_product = data_access.update_product(request.get_json())
+        updated_product_json = jsonify(vars(updated_product))
+
+    # User error, missing fields
+    except (KeyError) as e:
+        return make_response("Input is missing fields", 422)
+    # User error, incorrect data type
+    except (ValueError) as e:
+        return make_response("Incorrect data type in input", 422)
+    except Exception as e:
+        # Server error
+        return make_response(f"{type(e)} {e.__str__()}", 500)
+    
+    else:
+        response = make_response(updated_product_json, 200)
+        response.headers["Content-Type"] = "application/json"
+        return response
 
 
 # Delete a product
 @app.route("/products/<id>", methods=["DELETE"])
 def delete_product(id):
-    data_access.delete_product(id)
+    try:
+        data_access.delete_product(id)
 
-    response = make_response("deleted", 200)
-    # Set the content type header
-    response.headers["Content-Type"] = "text/plain"
+    except StopIteration:
+        return make_response("Not product with the given ID exists", 422)
+    except Exception as e:
+        # Server error
+        return make_response(f"{type(e)} {e.__str__()}", 500)
 
-    return response
+    else:
+        return make_response(f"Product ID {id} was deleted", 200)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
-# *****Scratch*****
-
-# app = Flask(__name__)
-
-
-# @app.route("/")
-# def hello_world():
-#     return "<p>Hello, World!</p>"
-
-
-# db.create_all()
-# app.run(debug=True)
-
-#     from flask import Flask, jsonify, request
-# from flask_sqlalchemy import SQLAlchemy
-# from flask_marshmallow import Marshmallow
-
-# # Initialize Flask app
-# app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///products.db'
-# db = SQLAlchemy(app)
-# ma = Marshmallow(app)
-
-# # Product model
-# class Product(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(100), nullable=False)
-#     price = db.Column(db.Float, nullable=False)
-
-#     def __init__(self, name, price):
-#         self.name = name
-#         self.price = price
-
-# # Product schema for serialization
-# class ProductSchema(ma.Schema):
-#     class Meta:
-#         fields = ('id', 'name', 'price')
-
-# product_schema = ProductSchema()
-# products_schema = ProductSchema(many=True)
-
-# # Create a product
-# @app.route('/products', methods=['POST'])
-# def create_product():
-#     name = request.json['name']
-#     price = request.json['price']
-#     new_product = Product(name, price)
-#     db.session.add(new_product)
-#     db.session.commit()
-#     return product_schema.jsonify(new_product)
-
-# # Get all products
-# @app.route('/products', methods=['GET'])
-# def get_products():
-#     all_products = Product.query.all()
-#     result = products_schema.dump(all_products)
-#     return jsonify(result)
-
-# # Get a single product by ID
-# @app.route('/products/<int:product_id>', methods=['GET'])
-# def get_product(product_id):
-#     product = Product.query.get(product_id)
-#     return product_schema.jsonify(product)
-
-# # Update a product
-# @app.route('/products/<int:product_id>', methods=['PUT'])
-# def update_product(product_id):
-#     product = Product.query.get(product_id)
-#     product.name = request.json['name']
-#     product.price = request.json['price']
-#     db.session.commit()
-#     return product_schema.jsonify(product)
-
-# # Delete a product
-# @app.route('/products/<int:product_id>', methods=['DELETE'])
-# def delete_product(product_id):
-#     product = Product.query.get(product_id)
-#     db.session.delete(product)
-#     db.session.commit()
-#     return product_schema.jsonify(product)
+    app.run(debug=False)
