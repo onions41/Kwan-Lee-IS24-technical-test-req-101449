@@ -1,8 +1,5 @@
-import json
-
-
 class ProductModel:
-    # The properties of the Product model
+    # The properties of the Product model. This is a static attibute
     properties = ("pk", "id", "name", "description", "colour", "size")
 
     def __init__(self, data):
