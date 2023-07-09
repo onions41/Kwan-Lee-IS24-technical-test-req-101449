@@ -47,13 +47,13 @@ def add_product():
         added_product_json = jsonify(vars(added_product))
 
     # User error, missing fields
-    except (KeyError) as e:
+    except KeyError as e:
         return make_response("Input is missing fields", 422)
     # User error, incorrect data type
-    except (ValueError) as e:
+    except ValueError as e:
         return make_response("Incorrect data type in input", 422)
     # User error, product with same ID or name exists
-    except (IntegrityError) as e:
+    except IntegrityError as e:
         return make_response("Duplicate product ID or Name", 422)
     # Internal server error, responds with status code and error message
     except Exception as e:
@@ -93,15 +93,15 @@ def update_product():  # No need to use ID in URL parameter. ID is in JSON body
         updated_product_json = jsonify(vars(updated_product))
 
     # User error, missing fields
-    except (KeyError) as e:
+    except KeyError as e:
         return make_response("Input is missing fields", 422)
     # User error, incorrect data type
-    except (ValueError) as e:
+    except ValueError as e:
         return make_response("Incorrect data type in input", 422)
     except Exception as e:
         # Server error
         return make_response(f"{type(e)} {e.__str__()}", 500)
-    
+
     else:
         response = make_response(updated_product_json, 200)
         response.headers["Content-Type"] = "application/json"
@@ -125,4 +125,6 @@ def delete_product(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    # API is started this way only during development
+    # Gunicorn is used instead for deployment in the Docker container
+    app.run(debug=True)
