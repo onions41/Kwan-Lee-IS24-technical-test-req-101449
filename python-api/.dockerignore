@@ -1,0 +1,4 @@
+notebook
+tests
+.env.development
+**/__pycache__
