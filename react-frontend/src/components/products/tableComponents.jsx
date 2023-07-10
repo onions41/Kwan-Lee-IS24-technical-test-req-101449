@@ -1,6 +1,6 @@
 // External imports
 import { forwardRef } from "react";
-import { Router, Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 // MUI (UI components)
 import Link from "@mui/material/Link";
