@@ -51,7 +51,7 @@ def add_product():
         return make_response("Input is missing fields", 422)
     # User error, incorrect data type
     except ValueError as e:
-        return make_response("Incorrect data type in input", 422)
+        return make_response(e.__str__(), 422)
     # User error, product with same ID or name exists
     except IntegrityError as e:
         return make_response("Duplicate product ID or Name", 422)
@@ -97,7 +97,7 @@ def update_product():  # No need to use ID in URL parameter. ID is in JSON body
         return make_response("Input is missing fields", 422)
     # User error, incorrect data type
     except ValueError as e:
-        return make_response("Incorrect data type in input", 422)
+        return make_response(e.__str__(), 422)
     except Exception as e:
         # Server error
         return make_response(f"{type(e)} {e.__str__()}", 500)
@@ -115,7 +115,7 @@ def delete_product(id):
         data_access.delete_product(id)
 
     except StopIteration:
-        return make_response("Not product with the given ID exists", 422)
+        return make_response("No product with the given ID exists", 422)
     except Exception as e:
         # Server error
         return make_response(f"{type(e)} {e.__str__()}", 500)
@@ -130,6 +130,6 @@ if __name__ == "__main__":
     # it needs to listen at all addresses when running in a container, because
     # Docker just chooses a random container address to forward requests
     app.run(debug=True)
-    app.run(host="0.0.0.0")
+    # app.run(host="0.0.0.0")
     # Gunicorn is used instead for deployment in the Docker container
     
