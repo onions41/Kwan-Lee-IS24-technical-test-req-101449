@@ -36,7 +36,7 @@ const PageContainer = styled(Box)(({ theme }) => ({
   overflow: "scroll"
 }));
 
-// Styles the form and determines its layout
+// Determins the form layout
 const FormContainer = styled(Box)({
   width: "min(700, 100%)",
   paddingLeft: 10,

@@ -4,18 +4,18 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 
 // Pop-up dialog. Confirms before sending request to API to add new product
-export default function ConfirmAddProdDialog({ isOpen, setIsOpen, handleSubmit }) {
+export default function ConfirmUpdateDialog({ isOpen, setIsOpen, handleConfirm }) {
   return (
     <Dialog
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      aria-labelledby="confirm-add-product-dialog"
+      aria-labelledby="confirm-update-product-dialog"
     >
-      <DialogTitle id="confirm-add-product-dialog">Really add product?</DialogTitle>
+      <DialogTitle id="confirm-update-product-dialog">Really update product?</DialogTitle>
       <DialogActions>
         <Button
           onClick={() => {
-            handleSubmit();
+            handleConfirm();
             setIsOpen(false);
           }}
         >
