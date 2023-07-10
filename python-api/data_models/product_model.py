@@ -61,7 +61,7 @@ class ProductModel:
         self.id = data["id"]
         self.name = data["name"]
         self.description = None if data["description"] is None or len(data["description"]) == 0 else data["description"]
-        self.colour = None if data["colour"] is None or len(data["colour"]) == 0 else data["colour"]
+        self.colour = None if data["colour"] is None or len(data["colour"]) == 0 else data["colour"].lower()
         self.size = None if data["size"] is None or len(data["size"]) == 0 else data["size"]
 
     def set_pk(self, pk):
