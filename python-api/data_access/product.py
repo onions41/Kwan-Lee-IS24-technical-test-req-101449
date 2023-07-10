@@ -17,7 +17,7 @@ def get_products():
         connection = database.connect(**get_connection_params())
         cursor = connection.cursor()
         # Executes a query to retrieve all products
-        statement = """SELECT * FROM products"""
+        statement = """SELECT * FROM products ORDER BY pk DESC"""
         cursor.execute(statement)
         # cursor is a generator that returns each row of the database table as a tuple
         # Generates the tuples and maps them into a list of product objects
