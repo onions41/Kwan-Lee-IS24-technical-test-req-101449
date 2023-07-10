@@ -8,6 +8,7 @@ import Container from "@mui/material/Container";
 // Internal imports
 import Menu from "components/app/Menu";
 import Products from "routes/Products";
+import AddProduct from "routes/AddProduct";
 import Product from "routes/Product";
 
 export default function App() {
@@ -41,35 +42,21 @@ export default function App() {
                   />
                 }
               />
+              {/* View all products */}
               <Route
                 path="/products"
                 element={<Products />}
               />
+              {/* Add a new product */}
+              <Route
+                path="/products/add"
+                element={<AddProduct />}
+              />
+              {/* View a product */}
               <Route
                 path="/products/:productId"
                 element={<Product />}
               />
-              {/*
-          <Route
-            path="/products/add"
-            element={
-              isLoggedIn ? (
-                <Template>
-                  <Contacts
-                    meCalled={called}
-                    meLoading={loading}
-                    meError={error}
-                    me={data?.user}
-                  />
-                </Template>
-              ) : (
-                <Navigate
-                  to="/login"
-                  replace
-                />
-              )
-            }
-          /> */}
             </Routes>
           </Box>
         </Container>
