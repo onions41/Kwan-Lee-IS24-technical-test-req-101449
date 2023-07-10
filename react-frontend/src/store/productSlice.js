@@ -5,7 +5,6 @@ import { createSlice } from "@reduxjs/toolkit";
 const productSlice = createSlice({
   name: "product",
   initialState: {
-    meQueryDone: false,
     fetchState: { loading: true, error: false },
     products: []
   },
@@ -19,16 +18,21 @@ const productSlice = createSlice({
           state.products = payload.data;
           break;
         case "addedNewProd":
-          state.products = state.products.concat(payload.data)
+          state.products = state.products.concat(payload.data);
           break;
-        // case "addedNewProd":
-        //   return [action.data].concat(products);
-        // case "editedProd":
-        //   const index = products.findIndex((row) => row.productId === action.data.productId);
-        //   if (index !== -1) {
-        //     products[index] = { ...products[index], ...action.data };
-        //   }
-        //   return products;
+        case "updatedProd":
+          const index = state.products.findIndex((row) => row.pk === payload.data.pk);
+          if (index !== -1) {
+            state.products = [
+              ...state.products.slice(0, index),
+              { ...state.products[index], ...payload.data },
+              ...state.products.slice(index + 1)
+            ];
+          }
+          break;
+        case "deletedProd":
+          state.products = state.products.filter(product => product.pk !== payload.data.pk);
+          break;
         default:
           throw new Error("Invalid action type in products reducer");
       }
