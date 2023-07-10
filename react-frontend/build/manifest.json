@@ -1,0 +1,20 @@
+{
+  "short_name": "Kwan Lee Technical Test",
+  "name": "Kwan-Lee-IS24-Technical-Test",
+  "icons": [
+    {
+      "src": "round_bird_32x32.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "round_bird_192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
