@@ -144,7 +144,7 @@ def get_product(id):
 def update_product(product_json):
     try:
         # Validates user input by instantiating a product object
-        product = ProductModel(json.loads(product_json))
+        product = ProductModel(product_json)
         # Connects to the database
         connection = database.connect(**get_connection_params())
         cursor = connection.cursor()
