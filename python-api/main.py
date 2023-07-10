@@ -126,10 +126,11 @@ def delete_product(id):
 
 if __name__ == "__main__":
     # API is started this way only during development
+    # When running with Gunicorn production server:
     # Flask only listens at 127.0.0.1 by default, but
     # it needs to listen at all addresses when running in a container, because
     # Docker just chooses a random container address to forward requests
-    app.run(debug=True)
+    app.run(port=8000, debug=True)
     # app.run(host="0.0.0.0")
     # Gunicorn is used instead for deployment in the Docker container
     
