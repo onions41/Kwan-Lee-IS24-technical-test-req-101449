@@ -87,7 +87,7 @@ def get_product(id):
 
 # Update a product
 @app.route("/products/<id>", methods=["PUT"])
-def update_product():  # No need to use ID in URL parameter. ID is in JSON body
+def update_product(id):  # No need to use ID in URL parameter. JSON body is used to identify product
     try:
         updated_product = data_access.update_product(request.get_json())
         updated_product_json = jsonify(vars(updated_product))
