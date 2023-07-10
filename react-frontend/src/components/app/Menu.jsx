@@ -1,6 +1,6 @@
 // External imports
 import { useSelector } from "react-redux";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 
 // MUI (UI components)
 import Box from "@mui/material/Box";
@@ -17,7 +17,7 @@ import { selectFetchState, selectProducts } from "store/productSlice";
 
 // The top-bar menu
 export default function Menu() {
-  const url = window.location.pathname;
+  let { pathname: url } = useLocation();
   const fetchState = useSelector(selectFetchState);
   const products = useSelector(selectProducts);
   return (
