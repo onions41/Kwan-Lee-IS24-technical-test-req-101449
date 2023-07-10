@@ -16,8 +16,10 @@ const productSlice = createSlice({
     products: (state, { payload }) => {
       switch (payload.type) {
         case "fetchedAllProd":
-          console.log("****", payload)
           state.products = payload.data;
+          break;
+        case "addedNewProd":
+          state.products = state.products.concat(payload.data)
           break;
         // case "addedNewProd":
         //   return [action.data].concat(products);
