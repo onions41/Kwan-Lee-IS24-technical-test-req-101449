@@ -6,19 +6,19 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 
-// Pop-up dialog. Indicates successful deletion of the product
-export default function DeleteSuccessDialog({ isOpen, setIsOpen }) {
+// Pop-up dialog. Indicates product was updated successfully
+export default function AddProdSuccessDialog({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
   return (
     <Dialog
       open={isOpen}
-      aria-labelledby="successfully-delete-product-dialog"
+      aria-labelledby="successfully-added-product-dialog"
     >
-      <DialogTitle id="successfully-delete-product-dialog">
-        The product was deleted successfully
+      <DialogTitle id="successfully-added-product-dialog">
+        The product was added successfully
       </DialogTitle>
       <DialogActions>
-        {/* Okay button. Navigates back to products page */}
+        {/* Okay button. Closes this dialog and naviages back to the product listing page */}
         <Button
           onClick={() => {
             setIsOpen(false);

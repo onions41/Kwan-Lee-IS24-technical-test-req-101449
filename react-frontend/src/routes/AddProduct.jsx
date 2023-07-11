@@ -1,6 +1,5 @@
 // External imports
 import { useCallback, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Formik } from "formik";
 
@@ -20,8 +19,9 @@ import TextField from "@mui/material/TextField";
 // Internal imports
 import ConfirmAddProdDialog from "components/addProduct/ConfirmAddProdDialog";
 import ConfirmClearDialog from "components/addProduct/ConfirmClearDialog";
-import AddProdErrorDialog from "components/addProduct/AddProdErrorDialog";
-import productValidation from "components/common/productValidation";
+import AddProdSuccessDialog from "components/addProduct/AddProdSuccessDialog";
+import AddProdFailDialog from "components/addProduct/AddProdFailDialog";
+import productValidation from "utils/productValidation";
 import { productsAction } from "store/productSlice";
 
 // Postions the form within the page
@@ -48,27 +48,24 @@ const FormContainer = styled(Box)({
 
 // Modal containing the form to add a new product
 export default function AddProduct() {
-  // Redux hooks
+  // Used to dispatch added product to the list of products held in memory
   const dispatch = useDispatch();
-  // Used to open or close submit and clear confirmation dialogs
-  const [isAddProdDialOpen, setIsAddProdDialOpen] = useState(false);
-  const [isClearDialOpen, setIsClearDialOpen] = useState(false);
-  // Used to open the error dialog when submit fails
-  const [isErrorDialOpen, setIsErrorDialOpen] = useState(false);
-
+  // Opens/closes dialogs
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [isFailDialogOpen, setIsFailDialogOpen] = useState(false);
+  // Holds error message in case adding the product fails
   const errorRef = useRef("");
-  const navigate = useNavigate();
 
   // Callback that runs when the form is submitted
   const onSubmit = useCallback(
-    async (values, { resetForm }) => {
+    async (values) => {
       // Makes POST request to the API to add a new product
       fetch(`${process.env.REACT_APP_API_SERVER_URL}/products`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(values)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values) // Form data is sent as JSON
       })
         .then(async (response) => {
           // Response health check
@@ -77,32 +74,32 @@ export default function AddProduct() {
           }
           // Response is healthy
           const resObj = await response.json();
-          // Update the interface
+          // Updates the list of all products held in memory with the added product,
+          // which avoids having to send another request to the API
           dispatch(productsAction({ type: "addedNewProd", data: resObj }));
-          // Reset the form
-          resetForm();
-          // Close the modal
-          navigate("/products");
+          // Opens the success dialog
+          setIsSuccessDialogOpen(true)
         })
         .catch((error) => {
           // Catches both network errors (no response) and unhealthy response errors
+          // Captures the error message and opens a dialog to display the message
           errorRef.current = error.message;
-          setIsErrorDialOpen(true);
+          setIsFailDialogOpen(true);
         });
     },
-    [errorRef, dispatch, navigate]
+    [errorRef, dispatch]
   );
 
   return (
     <PageContainer>
-      {/* Title of the form: "Add a new product" */}
+      {/* Title of the form: "Add a New Product" */}
       <Typography
         variant="h5"
         component="h1"
         align="center"
         py={2.5}
       >
-        Add a new product
+        Add a New Product
       </Typography>
       {/* Form logic starts here */}
       <Formik
@@ -171,7 +168,6 @@ export default function AddProduct() {
                 variant="filled"
                 sx={{ margin: "8px 0 8px", gridColumn: "span 2" }}
               />
-
               {/* Product Colour field */}
               <TextField
                 id="colour"
@@ -205,9 +201,10 @@ export default function AddProduct() {
                   <MenuItem value="large">large</MenuItem>
                 </Select>
               </FormControl>
+
               {/* Add Product Button. Can only be pressed when required fields are populated */}
               <Button
-                onClick={() => setIsAddProdDialOpen(true)}
+                onClick={() => setIsConfirmDialogOpen(true)}
                 disabled={
                   isSubmitting || !!errors.id || !values.id || !values.name
                 }
@@ -220,7 +217,7 @@ export default function AddProduct() {
               </Button>
               {/* Clear Fields Button */}
               <Button
-                onClick={() => setIsClearDialOpen(true)}
+                onClick={() => setIsClearDialogOpen(true)}
                 disabled={
                   isSubmitting ||
                   !Object.values(values)
@@ -234,20 +231,25 @@ export default function AddProduct() {
               >
                 Clear
               </Button>
+              
               {/* Dialogs */}
               <ConfirmAddProdDialog
-                isOpen={isAddProdDialOpen}
-                setIsOpen={setIsAddProdDialOpen}
+                isOpen={isConfirmDialogOpen}
+                setIsOpen={setIsConfirmDialogOpen}
                 handleSubmit={handleSubmit}
               />
               <ConfirmClearDialog
-                isOpen={isClearDialOpen}
-                setIsOpen={setIsClearDialOpen}
+                isOpen={isClearDialogOpen}
+                setIsOpen={setIsClearDialogOpen}
                 resetForm={resetForm}
               />
-              <AddProdErrorDialog
-                isOpen={isErrorDialOpen}
-                setIsOpen={setIsErrorDialOpen}
+              <AddProdSuccessDialog
+                isOpen={isSuccessDialogOpen}
+                setIsOpen={setIsSuccessDialogOpen}
+              />
+              <AddProdFailDialog
+                isOpen={isFailDialogOpen}
+                setIsOpen={setIsFailDialogOpen}
                 errorRef={errorRef}
               />
             </FormContainer>

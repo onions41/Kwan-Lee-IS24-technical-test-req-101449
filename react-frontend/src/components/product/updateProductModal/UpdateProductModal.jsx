@@ -176,7 +176,6 @@ export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, s
                   variant="filled"
                   sx={{ margin: "8px 0 8px", gridColumn: "span 2" }}
                 />
-
                 {/* Product Colour field */}
                 <TextField
                   id="colour"
