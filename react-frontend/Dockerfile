@@ -1,17 +1,20 @@
+# Node.js Express server is used to serve the front-end application
 FROM node:18
 
 # Create and move to /app directory
-# This will be the project root
 WORKDIR /app
-
-# Copy package.json and package-lock.json, then install packages
+# Initiate a Node.js project
 RUN npm init -y
-RUN npm i express
+# Install the Express server package
+RUN npm install express
 
-# Copy production code
+# Copy over the built React application code
 COPY build ./build
+# Copy over the Express server entry-point
 COPY serve.js .
 
+# Start the Express server
 ENTRYPOINT ["node", "serve.js"]
 
+# Best practice for security reasons when using Node.js containers
 USER node

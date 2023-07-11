@@ -1,27 +1,27 @@
 services:
+  # MariaDB database
   db:
     image: mariadb:10
     restart: unless-stopped
     networks:
       - appnet
-    # network_mode: bridge
     environment:
       # MARIADB_ROOT_PASSWORD is sensitive data and would normally be obfuscated
       # using Docker's secret management techniques. I left it visible here, however,
-      # in the interest of convenience for the evaluator of this developer technical test.
+      # in the interest of convenience for the evaluator.
       MARIADB_ROOT_PASSWORD: password123
       # Creates a database called bc_store the first time this container is started
       MARIADB_DATABASE: bc_store
-
+      # Creates a database user. All permissions are granted for the above database
       MARIADB_USER: bc_store
       MARIADB_PASSWORD: password456
-    # Contains the SQL statements that initializes and seeds the bc_store database
     volumes:
       # Seeds the database
       - ./dbseed:/docker-entrypoint-initdb.d
-      # Persists the database data in the event container is stopped
+      # Persists the data in the event container is stopped
       - ./dbfiles:/var/lib/mysql
 
+  # Python API
   api:
     image: python-api
     restart: unless-stopped
@@ -29,7 +29,6 @@ services:
       - appnet
     depends_on:
       - db
-    # network_mode: bridge
     environment:
       DB_USER: bc_store
       DB_PASSWORD: password456
@@ -38,9 +37,10 @@ services:
       DB_PORT: 3306
       DATABASE_NAME: bc_store
     ports:
-      # Host port:Container port
+      # API will listen on port 8000
       - 8000:8000
 
+  # React frontend
   frontend:
     image: react-frontend
     restart: unless-stopped
@@ -48,9 +48,8 @@ services:
       - appnet
     depends_on:
       - api
-    # network_mode: bridge
     ports:
-      # Host port:Container port
+      # Front-end application will be served at port 3000
       - 3000:3000
 
 networks:
