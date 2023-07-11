@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     networks:
       - appnet
-    network_mode: bridge
+    # network_mode: bridge
     environment:
       # MARIADB_ROOT_PASSWORD is sensitive data and would normally be obfuscated
       # using Docker's secret management techniques. I left it visible here, however,
@@ -23,13 +23,13 @@ services:
       - ./dbfiles:/var/lib/mysql
 
   api:
-    image: python-api:latest
+    image: python-api
     restart: unless-stopped
     networks:
       - appnet
     depends_on:
       - db
-    network_mode: bridge
+    # network_mode: bridge
     environment:
       DB_USER: bc_store
       DB_PASSWORD: password456
@@ -39,7 +39,19 @@ services:
       DATABASE_NAME: bc_store
     ports:
       # Host port:Container port
-      - 5000:5000
+      - 8000:8000
+
+  frontend:
+    image: react-frontend
+    restart: unless-stopped
+    networks:
+      - appnet
+    depends_on:
+      - api
+    # network_mode: bridge
+    ports:
+      # Host port:Container port
+      - 3000:3000
 
 networks:
   appnet:
