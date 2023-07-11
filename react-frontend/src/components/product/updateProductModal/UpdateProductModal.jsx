@@ -1,3 +1,4 @@
+// External imports
 import { useCallback, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Formik } from "formik";
@@ -19,12 +20,13 @@ import ReplayIcon from "@mui/icons-material/Replay";
 
 // Internal imports
 import ConfirmUpdateDialog from "./ConfirmUpdateDialog";
+import UpdateSuccessDialog from "./UpdateSuccessDialog";
 import UpdateFailDialog from "./UpdateFailDialog";
-import productValidation from "components/common/productValidation";
-import { productsAction } from "store/productSlice";
+import productValidation from "utils/productValidation";
 import objValuesToStrings from "utils/objValuesToStrings";
+import { productsAction } from "store/productSlice";
 
-// Styles the modal
+// Styles and positions the modal
 const ModalContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   border: `3px ${theme.palette.primary.main} solid`,
@@ -38,7 +40,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   overflow: "scroll"
 }));
 
-// Styles the form and determines its layout
+// Determins the form layout
 const FormContainer = styled(Box)({
   width: "min(700, 100%)",
   paddingLeft: 10,
@@ -48,28 +50,27 @@ const FormContainer = styled(Box)({
   gridTemplateColumns: "repeat(2, 1fr)"
 });
 
-
-// Modal containing the form to edit an existing product
+// Modal containing the form to update an existing product
 export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, setProdData }) {
-  // Redux hooks
+  // Used to dispatch update to list of products held in memory
   const dispatch = useDispatch();
+  // Grabs the Product ID from the URL
   const { productId } = useParams();
-  // Used to open or close confirmation dialog
+  // Opens/closes dialogs
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  // Used to open the error dialog when submit fails
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [isFailDialogOpen, setIsFailDialogOpen] = useState(false);
+  // Holds error message in case update fails
   const errorRef = useRef("");
 
   // Callback that runs when the form is submitted
   const onSubmit = useCallback(
     async (values) => {
-      // Makes POST request to the API to add a new product
+      // Makes PUT request to the API to update an existing product
       fetch(`${process.env.REACT_APP_API_SERVER_URL}/products/${productId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(values)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values) // Form data is sent as JSON
       })
         .then(async (response) => {
           // Response health check
@@ -78,20 +79,25 @@ export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, s
           }
           // Response is healthy
           const resObj = await response.json();
-          // Update the all products table
+          // Updates the list of all products held in memory with the updated product,
+          // which avoids having to send another request to the API when the user
+          // navigates back to view all products
           dispatch(productsAction({ type: "updatedProd", data: resObj }));
-          // Update the product data for the UI
+          // Updates the product data for the current page (view a single product) UI
+          // resObj's values are converted to strings because it is used to fill the
+          // update product form, which expects only strings
           setProdData({ loading: false, error: false, data: objValuesToStrings(resObj) });
-          // Close the modal
-          setIsOpen(false);
+          // Opens the success dialog
+          setIsSuccessDialogOpen(true);
         })
         .catch((error) => {
           // Catches both network errors (no response) and unhealthy response errors
+          // Captures the error message and opens a dialog to display the message
           errorRef.current = error.message;
           setIsFailDialogOpen(true);
         });
     },
-    [errorRef, dispatch, productId, setIsOpen, setProdData]
+    [errorRef, dispatch, productId, setProdData]
   );
 
   return (
@@ -100,14 +106,14 @@ export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, s
       onClose={() => setIsOpen(false)}
     >
       <ModalContainer>
-        {/* Title of the form: "Update product" */}
+        {/* Title of the form: "Update Product" */}
         <Typography
           variant="h5"
           component="h1"
           align="center"
           py={2.5}
         >
-          Update product
+          Update Product
         </Typography>
         {/* Form logic starts here */}
         <Formik
@@ -205,8 +211,6 @@ export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, s
                   </Select>
                 </FormControl>
 
-                {/* Buttons */}
-
                 {/* Update product button */}
                 <Button
                   onClick={() => setIsConfirmDialogOpen(true)}
@@ -235,6 +239,11 @@ export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, s
                   isOpen={isConfirmDialogOpen}
                   setIsOpen={setIsConfirmDialogOpen}
                   handleConfirm={handleSubmit}
+                />
+                <UpdateSuccessDialog
+                  isOpen={isSuccessDialogOpen}
+                  setIsOpen={setIsSuccessDialogOpen}
+                  setIsModalOpen={setIsOpen}
                 />
                 <UpdateFailDialog
                   isOpen={isFailDialogOpen}
