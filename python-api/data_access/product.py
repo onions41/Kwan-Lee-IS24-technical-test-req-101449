@@ -74,7 +74,7 @@ def add_product(product_dict):
         cursor.execute(statement, parameters)
         # Places generated primary key into the product object
         product.set_pk(cursor.lastrowid)
-    
+
     # Passes errors to function caller. Has to be done to
     # gracefully disconnect from the database in the finally block.
     except Exception as e:
@@ -97,6 +97,7 @@ def add_product(product_dict):
             connection.close()
         except Exception:
             pass
+
 
 # Queries the database and returns a single product identified by its Product ID
 # The returned product is an object instance of the ProductModel
@@ -139,6 +140,7 @@ def get_product(id):
         except Exception:
             pass
 
+
 # Updates the fields of an existing product and
 # returns an instance of the updated product
 def update_product(product_json):
@@ -148,19 +150,23 @@ def update_product(product_json):
         # Connects to the database
         connection = database.connect(**get_connection_params())
         cursor = connection.cursor()
-        # Replaces the fields of the product in the database
-        # This statement identifies the product by its pk (primary key)
+
         statement = """
-            REPLACE INTO products (pk, id, name, description, colour, size)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            UPDATE products SET
+                id = %s,
+                name = %s,
+                description = %s,
+                colour = %s,
+                size = %s
+            WHERE pk = %s;
         """
         parameters = (
-            vars(product)["pk"],
             vars(product)["id"],
             vars(product)["name"],
             vars(product)["description"],
             vars(product)["colour"],
             vars(product)["size"],
+            vars(product)["pk"],
         )
         cursor.execute(statement, parameters)
 
@@ -173,7 +179,7 @@ def update_product(product_json):
     else:
         connection.commit()
         return product
-    
+
     # Gracefully disconnects from the database
     # regardless of whether or not an error was raised.
     # Errors are ignored in case cursor/connection weren't defined
@@ -186,6 +192,7 @@ def update_product(product_json):
             connection.close()
         except Exception:
             pass
+
 
 # Deletes a product identified by its productID
 # Has no return value. Throws error if unsuccessful
