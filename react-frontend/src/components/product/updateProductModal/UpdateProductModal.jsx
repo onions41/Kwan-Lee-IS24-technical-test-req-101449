@@ -68,7 +68,7 @@ export default function UpdateProductModal({ isOpen, setIsOpen, initialValues, s
     async (values) => {
       // Makes PUT request to the API to update an existing product
       fetch(`${process.env.REACT_APP_API_SERVER_URL}/products/${productId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values) // Form data is sent as JSON
       })
