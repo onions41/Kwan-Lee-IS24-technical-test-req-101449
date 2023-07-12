@@ -4,10 +4,10 @@ FROM python:3.10-bullseye
 WORKDIR /app
 # Copy over the list of required Python packages
 COPY requirements.txt .
-# Installed the listed packages
+# Install the listed packages
 RUN python -m pip install -r requirements.txt
 
-# Copy over API code (.dockerignore is used to ignore unecessary files)
+# Copy over application code (.dockerignore is used to ignore unecessary files)
 COPY . .
 
 # Start the API server
