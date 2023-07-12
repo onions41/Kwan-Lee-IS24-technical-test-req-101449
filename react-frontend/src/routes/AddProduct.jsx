@@ -198,7 +198,7 @@ export default function AddProduct() {
                 </Select>
               </FormControl>
 
-              {/* Add Product Button. Can only be pressed when required fields are populated */}
+              {/* Add Product (Save) Button. Can only be pressed when required fields are populated */}
               <Button
                 onClick={() => setIsConfirmDialogOpen(true)}
                 disabled={
@@ -209,7 +209,7 @@ export default function AddProduct() {
                 endIcon={<SendIcon />}
                 sx={{ margin: "24px 0 8px" }}
               >
-                Add Product
+                Save
               </Button>
               {/* Clear Fields Button */}
               <Button
