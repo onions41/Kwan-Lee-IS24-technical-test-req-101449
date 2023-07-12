@@ -4,9 +4,9 @@ class ProductModel:
 
     def __init__(self, data):
         # Data validations
-        # TODO: catch key errors in api
 
         # Product ID
+        # Required, must be positive number
         try:
             dataIdInt = int(data["id"])
             if dataIdInt < 0:
@@ -15,6 +15,7 @@ class ProductModel:
             ValueError("The product ID must be a positive number.")
 
         # Product Name
+        # Required, must be a string of length between 1 and 100
         if (
             not isinstance(data["name"], str)
             or len(data["name"]) < 1
@@ -23,7 +24,7 @@ class ProductModel:
             raise ValueError("The product name must be between 1 and 100 characters.")
 
         # Product Descriptions
-        # Is nullable. Must be string of length <= 10000 or null
+        # Nullable, must be string of length <= 10000 or None
         if data["description"] is not None and not (
             isinstance(data["description"], str) and len(data["description"]) <= 10000
         ):
@@ -32,14 +33,14 @@ class ProductModel:
             )
 
         # Product Colour
-        # Is nullable. Must be string of length <= 100 or null
+        # Nullable. Must be string of length <= 100 or None
         if data["colour"] is not None and not (
             isinstance(data["colour"], str) and len(data["colour"]) <= 100
         ):
             raise ValueError("The product colour cannot be long than 100 characters.")
 
         # Product Size
-        # Is nullable. Must be None, "", "small", "medium", or "large"
+        # Nullable. Must be None, "", "small", "medium", or "large"
         if data["size"] is not None and not (
             isinstance(data["size"], str)
             and data["size"].lower()
@@ -56,7 +57,7 @@ class ProductModel:
 
         # Passed all validations
 
-        # TODO: Can get rid of these conditional operations by tacking them on the end of each if statements above
+        # Sets object attributes
         self.pk = data["pk"] if "pk" in data else None
         self.id = data["id"]
         self.name = data["name"]
@@ -64,5 +65,6 @@ class ProductModel:
         self.colour = None if data["colour"] is None or len(data["colour"]) == 0 else data["colour"].lower()
         self.size = None if data["size"] is None or len(data["size"]) == 0 else data["size"]
 
+    # Primary key setter method
     def set_pk(self, pk):
         self.pk = pk
