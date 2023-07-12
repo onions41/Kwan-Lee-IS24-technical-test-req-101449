@@ -60,7 +60,7 @@ This is Kwan Lee's solution to the IS24 Full Stack Developer Technical Test. Tha
 
 * Database
 	* The database is seeded by the file in `dbseed/`
-	* The database is persisted by the Docker volume in `dbfiles`
+	* The database is persisted by the Docker volume, which will be created in `dbfiles` once container first runs.
 * API
 	* Source code for the API component is inside `python-api/`.
 	* `main.py` is the entrypoint. It defines the API endpoints.
