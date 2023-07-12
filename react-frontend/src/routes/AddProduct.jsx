@@ -27,20 +27,16 @@ import { productsAction } from "store/productSlice";
 // Postions the form within the page
 const PageContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
-  width: 700,
-  position: "fixed",
-  left: "50%",
-  top: "50%",
-  transform: "translate(-50%, -50%)",
   padding: "16px 16px 38px",
   overflow: "scroll"
 }));
 
 // Determins the form layout
 const FormContainer = styled(Box)({
-  width: "min(700, 100%)",
+  width: "min(700px, 100%)",
   paddingLeft: 10,
   paddingRight: 10,
+  margin: "auto",
   display: "grid",
   columnGap: "24px",
   gridTemplateColumns: "repeat(2, 1fr)"

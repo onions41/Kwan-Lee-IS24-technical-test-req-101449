@@ -42,7 +42,6 @@ const ModalContainer = styled(Box)(({ theme }) => ({
 
 // Determins the form layout
 const FormContainer = styled(Box)({
-  width: "min(700, 100%)",
   paddingLeft: 10,
   paddingRight: 10,
   display: "grid",
