@@ -1,3 +1,5 @@
+# Entrypoint for the API
+
 # External imports
 from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
@@ -7,10 +9,10 @@ from mysql.connector.errors import IntegrityError
 import data_access
 
 
-# Flask is a Python library for building simple APIs
+# Flask is a Python library for building APIs
 app = Flask(__name__)
-# Enables cross-origin resource sharing so requests from the frontend are processed
-# CORS should be configured more tightly before deploying on the web
+# Enables cross-origin resource sharing so requests from the frontend are not blocked
+# If needed, this can be configured more specifically to accept requests from only certain hosts
 CORS(app)
 
 
@@ -26,11 +28,11 @@ def get_products():
         # Serializes the list of products into a JSON string
         products_json = jsonify(list(map(lambda product: vars(product), products)))
 
-    # Internal server error, responds with status code and error message
+    # Internal server error, responds with error message
     except Exception as e:
         return make_response(f"{type(e)} {e.__str__()}", 500)
 
-    # Products retrieved successfully, respond with results and code 200
+    # Products retrieved successfully, responds with data
     else:
         response = make_response(products_json, 200)
         response.headers["Content-Type"] = "application/json"
@@ -41,9 +43,9 @@ def get_products():
 @app.route("/products", methods=["POST"])
 def add_product():
     try:
-        # Adds a product and returns the added product
+        # Adds a product and returns the added product data
         added_product = data_access.add_product(request.get_json())
-        # Serializes the product into a JSON string
+        # Serializes the product data into a JSON string
         added_product_json = jsonify(vars(added_product))
 
     # User error, missing fields
@@ -51,15 +53,16 @@ def add_product():
         return make_response("Input is missing fields", 422)
     # User error, incorrect data type
     except ValueError as e:
+        # Errors are chained from the product model
         return make_response(e.__str__(), 422)
-    # User error, product with same ID or name exists
+    # User error, product with same ID or Name exists
     except IntegrityError as e:
-        return make_response("Duplicate product ID or Name", 422)
-    # Internal server error, responds with status code and error message
+        return make_response("That Product ID or Product Name is already taken", 422)
+    # Internal server error
     except Exception as e:
         return make_response(f"{type(e)} {e.__str__()}", 500)
 
-    # Products added successfully, respond with added product and code 200
+    # Product added successfully, responds with added product data
     else:
         response = make_response(added_product_json, 200)
         response.headers["Content-Type"] = "application/json"
@@ -70,15 +73,19 @@ def add_product():
 @app.route("/products/<id>", methods=["GET"])
 def get_product(id):
     try:
+        # Retrieves a product by its Product ID
         product = data_access.get_product(id)
+        # Serializes the product into a JSON string
         product_json = jsonify(vars(product))
 
+    # User error, no product with that Product ID
     except StopIteration:
-        return make_response("Could not a find product with that ID", 422)
-
+        return make_response("There is no product with that Product ID", 422)
+    # Internal server error
     except Exception as e:
         return make_response(f"{type(e)} {e.__str__()}", 500)
 
+    # Product found, responds with product data
     else:
         response = make_response(product_json, 200)
         response.headers["Content-Type"] = "application/json"
@@ -86,10 +93,13 @@ def get_product(id):
 
 
 # Update a product
-@app.route("/products/<id>", methods=["PUT"])
-def update_product(id):  # No need to use ID in URL parameter. JSON body is used to identify product
+@app.route("/products/<id>", methods=["PATCH"])
+# Parameter is not used, but must be declared anyway for Flask
+def update_product(id):
     try:
+        # Updates a product and returns the updated product data
         updated_product = data_access.update_product(request.get_json())
+        # Serializes the product data into a JSON string
         updated_product_json = jsonify(vars(updated_product))
 
     # User error, missing fields
@@ -97,11 +107,16 @@ def update_product(id):  # No need to use ID in URL parameter. JSON body is used
         return make_response("Input is missing fields", 422)
     # User error, incorrect data type
     except ValueError as e:
+        # Errors are chained from the product model
         return make_response(e.__str__(), 422)
+    # User error, product with same ID or Name exists
+    except IntegrityError as e:
+        return make_response("That Product ID or Product Name is already taken", 422)
+    # Internal server error
     except Exception as e:
-        # Server error
         return make_response(f"{type(e)} {e.__str__()}", 500)
 
+    # Product updated successfully, responds with updated product data
     else:
         response = make_response(updated_product_json, 200)
         response.headers["Content-Type"] = "application/json"
@@ -112,25 +127,22 @@ def update_product(id):  # No need to use ID in URL parameter. JSON body is used
 @app.route("/products/<id>", methods=["DELETE"])
 def delete_product(id):
     try:
+        # Deletes a product identified by its Product ID
         data_access.delete_product(id)
 
+    # User error, no product with given Product ID exists
     except StopIteration:
-        return make_response("No product with the given ID exists", 422)
+        return make_response("No product with the given Product ID exists", 422)
+    # Internal server error
     except Exception as e:
-        # Server error
         return make_response(f"{type(e)} {e.__str__()}", 500)
 
+    # Product deleted successfully
     else:
         return make_response(f"Product ID {id} was deleted", 200)
 
 
 if __name__ == "__main__":
-    # API is started this way only during development
-    # When running with Gunicorn production server:
-    # Flask only listens at 127.0.0.1 by default, but
-    # it needs to listen at all addresses when running in a container, because
-    # Docker just chooses a random container address to forward requests
+    # python main.py is only run during development
+    # Gunicorn server is used to launch the API in Docker container
     app.run(port=8000, debug=True)
-    # app.run(host="0.0.0.0")
-    # Gunicorn is used instead for deployment in the Docker container
-    
