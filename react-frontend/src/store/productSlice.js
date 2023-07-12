@@ -1,11 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Create a slice. A Redux store is made up of one or more slices,
-// that is, if you want to slice up your logic.
+// Create a slice. A Redux store is made up of one or more "slices"
+// This slice deals with the states that has to do with products
 const productSlice = createSlice({
   name: "product",
   initialState: {
+    // Keeps track of request status for fetching a list of all products
     fetchState: { loading: true, error: false },
+    // Keeps the list of products in memory as a state
     products: []
   },
   reducers: {
@@ -40,19 +42,12 @@ const productSlice = createSlice({
   }
 });
 
-// The sliced is used to create a store.
-// A store is not needed to use redux states inside function componenets
-// because useDispatch and useSelector hooks can be used inside the components.
-// A store is needed to change/access the state outside of a function component.
+// Slices are combined to create the Redux store
 export default productSlice;
 
-// Actions
-// These actions can be imported and used inside React functional components
-// with the useDespatch hook.
+// Actions (reducers) are dispatched with a payload to change the state
 export const { fetchState: fetchStateAction, products: productsAction } = productSlice.actions;
 
-// Selectors
-// These selectors can be imported and used as state inside
-// React functional components with the useSelector hook.
+// Selectors are used to access states in application code
 export const selectFetchState = (state) => state.product.fetchState;
 export const selectProducts = (state) => state.product.products;
